@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
+<!-- Bu dosya hassas bilgiler içerdiğinden .gitignore'a eklenmelidir. -->
+<!-- API anahtarlarını koddan kaldırmak mümkün değildir, çünkü Firebase native SDK'lar bu dosyayı doğrudan okur. -->
 <dict>
 	<key>API_KEY</key>
 	<string>AIzaSyB5SjVHBt16BeR9Q4fN4aXFSnFUtCESdy4</string>
