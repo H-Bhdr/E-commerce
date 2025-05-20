@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!-- Bu dosya hassas bilgiler içerdiğinden .gitignore'a eklenmelidir. -->
+<!-- API anahtarlarını koddan kaldırmak mümkün değildir, çünkü Firebase native SDK'lar bu dosyayı doğrudan okur. -->
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyB5SjVHBt16BeR9Q4fN4aXFSnFUtCESdy4</string>
+	<key>GCM_SENDER_ID</key>
+	<string>801042934937</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.eCommerceProject</string>
+	<key>PROJECT_ID</key>
+	<string>e-commerce-firebase-6da6d</string>
+	<key>STORAGE_BUCKET</key>
+	<string>e-commerce-firebase-6da6d.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:801042934937:ios:69453e85e99f88d5f6dc08</string>
+</dict>
+</plist>
