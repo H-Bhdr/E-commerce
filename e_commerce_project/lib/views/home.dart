@@ -4,10 +4,11 @@ import 'package:e_commerce_project/models/porductModel.dart';
 import 'package:e_commerce_project/views/add_product.dart';
 
 class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
       body: FutureBuilder<List<Product>>(
         future: fetchProducts(),
         builder: (context, snapshot) {
@@ -31,11 +32,17 @@ class HomePage extends StatelessWidget {
                   child: Stack(
                     children: [
                       Container(
-                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade200, width: 1),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            width: 1,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.grey.withOpacity(0.06),
@@ -48,21 +55,31 @@ class HomePage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             ClipRRect(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(12),
+                              ),
                               child: Image.network(
                                 product.image,
                                 height: 300, // Yükseklik artırıldı
-                                fit: BoxFit.contain, // Sığdırmak için değiştirildi
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
+                                fit:
+                                    BoxFit
+                                        .contain, // Sığdırmak için değiştirildi
+                                errorBuilder:
+                                    (context, error, stackTrace) => Container(
                                       height: 300, // Yükseklik eşitlendi
                                       color: Colors.grey[200],
-                                      child: Icon(Icons.image_not_supported, size: 48),
+                                      child: Icon(
+                                        Icons.image_not_supported,
+                                        size: 48,
+                                      ),
                                     ),
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20), // Padding artırıldı
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 20,
+                              ), // Padding artırıldı
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
