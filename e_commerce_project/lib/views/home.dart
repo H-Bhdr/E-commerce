@@ -2,9 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:e_commerce_project/services/productServices.dart';
 import 'package:e_commerce_project/models/porductModel.dart';
 import 'package:e_commerce_project/views/add_product.dart';
+import 'package:e_commerce_project/Sensor/sensor.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<Product> _products = [];
+  bool _productsLoaded = false;
+  ShakeProductRecommender? _shakeRecommender;
+
+  @override
+  void dispose() {
+    _shakeRecommender?.stopListening();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +36,16 @@ class HomePage extends StatelessWidget {
             return Center(child: Text('Ürün bulunamadı.'));
           } else {
             final products = snapshot.data!;
+            // Sensör dinleyicisini sadece bir kez başlat
+            if (!_productsLoaded) {
+              _products = products;
+              _shakeRecommender = ShakeProductRecommender(
+                products: _products,
+                context: context,
+              );
+              _shakeRecommender!.startListening();
+              _productsLoaded = true;
+            }
             return ListView.builder(
               itemCount: products.length,
               itemBuilder: (context, index) {
@@ -59,14 +85,15 @@ class HomePage extends StatelessWidget {
                                 top: Radius.circular(12),
                               ),
                               child: Image.network(
-                                product.image,
-                                height: 300, // Yükseklik artırıldı
-                                fit:
-                                    BoxFit
-                                        .contain, // Sığdırmak için değiştirildi
+                                (product.image.startsWith('http://') ||
+                                        product.image.startsWith('https://'))
+                                    ? product.image
+                                    : 'https://via.placeholder.com/300x300?text=No+Image',
+                                height: 300,
+                                fit: BoxFit.contain,
                                 errorBuilder:
                                     (context, error, stackTrace) => Container(
-                                      height: 300, // Yükseklik eşitlendi
+                                      height: 300,
                                       color: Colors.grey[200],
                                       child: Icon(
                                         Icons.image_not_supported,
@@ -79,7 +106,7 @@ class HomePage extends StatelessWidget {
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 18,
                                 vertical: 20,
-                              ), // Padding artırıldı
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
