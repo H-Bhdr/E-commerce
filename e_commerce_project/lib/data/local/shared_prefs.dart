@@ -1,5 +1,9 @@
 //şule kullanıcı verilerini belleğe kaydedecek ve silecek fonksiyonları burada oluşturcak kullanıcı tokeni 
 
+//burada feat: Google ile giriş işlevi eklendi ve kullanıcı verileri Firestore + SharedPrefs'e kaydedildi
+
+
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore için
