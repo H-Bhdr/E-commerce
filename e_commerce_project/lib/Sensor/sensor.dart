@@ -17,7 +17,7 @@ class ShakeProductRecommender {
   ShakeProductRecommender({
     required this.products,
     required this.context,
-    this.shakeThreshold = 15.0,
+    this.shakeThreshold = 30.0, 
     this.minShakeDelayMs = 1200,
   });
 
@@ -34,16 +34,20 @@ class ShakeProductRecommender {
       event.x * event.x + event.y * event.y + event.z * event.z,
     );
     int now = DateTime.now().millisecondsSinceEpoch;
+    // Debug için log ekle
+    print('Acceleration: $acceleration');
     if (acceleration > shakeThreshold &&
         now - _lastShakeTime > minShakeDelayMs &&
         products.isNotEmpty &&
         !_dialogOpen) {
+      print('Shake detected! Showing product dialog.');
       _lastShakeTime = now;
       _showRandomProductDialog();
     }
   }
 
   void _showRandomProductDialog() {
+    if (_dialogOpen) return; 
     _dialogOpen = true;
     final random = Random();
     final product = products[random.nextInt(products.length)];
@@ -81,5 +85,10 @@ class ShakeProductRecommender {
     ).then((_) {
       _dialogOpen = false;
     });
+  }
+
+  
+  void debugShowRandomProduct() {
+    _showRandomProductDialog();
   }
 }
