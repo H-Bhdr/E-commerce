@@ -6,8 +6,13 @@ import 'package:e_commerce_project/components/app_bar.dart';
 import 'package:e_commerce_project/views/loginPage.dart';
 import 'package:e_commerce_project/core/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load();
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -30,21 +35,19 @@ class MyApp extends StatelessWidget {
           surface: AppColors.surfaceColor,
           onSurface: AppColors.textColor,
         ),
-        
+
         // Basic theme settings
         fontFamily: 'Poppins',
         scaffoldBackgroundColor: AppColors.backgroundColor,
-        
+
         // Component themes
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
         ),
-      
-        iconTheme: const IconThemeData(
-          color: AppColors.primaryColor,
-        ),
+
+        iconTheme: const IconThemeData(color: AppColors.primaryColor),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.all(AppColors.buttonColor),
@@ -52,7 +55,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      
+
       title: 'Material App',
       home: LoginPage(),
     );
@@ -75,11 +78,7 @@ class _MainNavigationState extends State<MainNavigation> {
     AddProductPage(), // Ekle
   ];
 
-  static const List<String> _titles = [
-    'Ana Sayfa',
-    'Favoriler',
-    'Ekle',
-  ];
+  static const List<String> _titles = ['Ana Sayfa', 'Favoriler', 'Ekle'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -90,18 +89,15 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor, // Use the defined background color
-      appBar: MyAppBar(
-        title: Text(_titles[_selectedIndex]),
-      ),
+      backgroundColor:
+          AppColors.backgroundColor, // Use the defined background color
+      appBar: MyAppBar(title: Text(_titles[_selectedIndex])),
       drawer: MyDrawer(),
       body: _pages[_selectedIndex],
       bottomNavigationBar: MyNavBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-
       ),
     );
-    
   }
 }
