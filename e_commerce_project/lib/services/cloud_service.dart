@@ -1,18 +1,27 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class CloudAIService {
-  static const String _apiKey = 'AIzaSyADiOuK4alaJkALTM9t3ukSTp3lHvKcA10'; // Web için doğrudan yazıldı
+class GeminiService {
+  static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
+
+ 
+  static Future<void> listModels() async {
+    final url = 'https://generativelanguage.googleapis.com/v1/models?key=$_apiKey';
+    final response = await http.get(Uri.parse(url));
+    print('Desteklenen modeller: ${response.body}');
+  }
+
   static String get _endpoint =>
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$_apiKey';
+      'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$_apiKey';
 
-  // Kullanıcıya ürün önerisi almak için fonksiyon
-  static Future<String?> getProductRecommendation(String userPrompt) async {
+  static Future<String?> askQuestion(String question) async {
+    final prompt = "Bir e-ticaret asistanı olarak kullanıcıdan gelen soruya kısa ve anlaşılır şekilde cevap ver: $question";
     final body = {
       "contents": [
         {
           "parts": [
-            {"text": userPrompt},
+            {"text": prompt},
           ],
         },
       ],
@@ -24,9 +33,10 @@ class CloudAIService {
       body: jsonEncode(body),
     );
 
+    print('Gemini API yanıtı: ${response.body}');
+
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      // Gemini API'nın response formatına göre ayarlayın
       return data['candidates']?[0]?['content']?['parts']?[0]?['text'];
     } else {
       print('Gemini API error: ${response.body}');
