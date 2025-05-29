@@ -3,6 +3,8 @@ import 'package:e_commerce_project/models/porductModel.dart';
 import 'package:e_commerce_project/services/productServices.dart';
 
 class AddProductPage extends StatefulWidget {
+  const AddProductPage({super.key});
+
   @override
   State<AddProductPage> createState() => _AddProductPageState();
 }
@@ -57,52 +59,173 @@ class _AddProductPageState extends State<AddProductPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Ürün Ekle')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _idController,
-                decoration: InputDecoration(labelText: 'ID'),
-                keyboardType: TextInputType.number,
-                validator: (v) => v == null || v.isEmpty ? 'ID giriniz' : null,
-              ),
-              TextFormField(
-                controller: _titleController,
-                decoration: InputDecoration(labelText: 'Başlık'),
-                validator: (v) => v == null || v.isEmpty ? 'Başlık giriniz' : null,
-              ),
-              TextFormField(
-                controller: _priceController,
-                decoration: InputDecoration(labelText: 'Fiyat'),
-                keyboardType: TextInputType.number,
-                validator: (v) => v == null || v.isEmpty ? 'Fiyat giriniz' : null,
-              ),
-              TextFormField(
-                controller: _descController,
-                decoration: InputDecoration(labelText: 'Açıklama'),
-                validator: (v) => v == null || v.isEmpty ? 'Açıklama giriniz' : null,
-              ),
-              TextFormField(
-                controller: _imageController,
-                decoration: InputDecoration(labelText: 'Görsel URL'),
-                validator: (v) => v == null || v.isEmpty ? 'Görsel URL giriniz' : null,
-              ),
-              TextFormField(
-                controller: _categoryController,
-                decoration: InputDecoration(labelText: 'Kategori (isteğe bağlı)'),
-              ),
-              SizedBox(height: 20),
-              _loading
-                  ? Center(child: CircularProgressIndicator())
-                  : ElevatedButton(
-                      onPressed: _submit,
-                      child: Text('Ürün Ekle'),
+      
+      body: Container(
+        decoration: BoxDecoration(
+          color: Colors.grey[50],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                Card(
+                  elevation: 4.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ürün Bilgileri',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        SizedBox(height: 16.0),
+                        TextFormField(
+                          controller: _idController,
+                          decoration: InputDecoration(
+                            labelText: 'ID',
+                            prefixIcon: Icon(Icons.numbers),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          keyboardType: TextInputType.number,
+                          validator: (v) => v == null || v.isEmpty ? 'ID giriniz' : null,
+                        ),
+                        SizedBox(height: 16.0),
+                        TextFormField(
+                          controller: _titleController,
+                          decoration: InputDecoration(
+                            labelText: 'Başlık',
+                            prefixIcon: Icon(Icons.title),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          validator: (v) => v == null || v.isEmpty ? 'Başlık giriniz' : null,
+                        ),
+                        SizedBox(height: 16.0),
+                        TextFormField(
+                          controller: _priceController,
+                          decoration: InputDecoration(
+                            labelText: 'Fiyat',
+                            prefixIcon: Icon(Icons.attach_money),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          keyboardType: TextInputType.number,
+                          validator: (v) => v == null || v.isEmpty ? 'Fiyat giriniz' : null,
+                        ),
+                      ],
                     ),
-            ],
+                  ),
+                ),
+                SizedBox(height: 16.0),
+                Card(
+                  elevation: 4.0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ürün Detayları',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        SizedBox(height: 16.0),
+                        TextFormField(
+                          controller: _descController,
+                          decoration: InputDecoration(
+                            labelText: 'Açıklama',
+                            prefixIcon: Icon(Icons.description),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          maxLines: 3,
+                          validator: (v) => v == null || v.isEmpty ? 'Açıklama giriniz' : null,
+                        ),
+                        SizedBox(height: 16.0),
+                        TextFormField(
+                          controller: _imageController,
+                          decoration: InputDecoration(
+                            labelText: 'Görsel URL',
+                            prefixIcon: Icon(Icons.image),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                          validator: (v) => v == null || v.isEmpty ? 'Görsel URL giriniz' : null,
+                        ),
+                        SizedBox(height: 16.0),
+                        TextFormField(
+                          controller: _categoryController,
+                          decoration: InputDecoration(
+                            labelText: 'Kategori (isteğe bağlı)',
+                            prefixIcon: Icon(Icons.category),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                SizedBox(height: 24.0),
+                _loading
+                    ? Center(child: CircularProgressIndicator())
+                    : SizedBox(
+                        height: 50.0,
+                        child: ElevatedButton(
+                          onPressed: _submit,
+                          style: ElevatedButton.styleFrom(
+                            elevation: 4.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
+                          child: Text(
+                            'ÜRÜN EKLE',
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                SizedBox(height: 16.0),
+              ],
+            ),
           ),
         ),
       ),
