@@ -5,10 +5,22 @@ import 'package:e_commerce_project/components/nav_bar.dart';
 import 'package:e_commerce_project/components/app_bar.dart';
 import 'package:e_commerce_project/views/loginPage.dart';
 import 'package:e_commerce_project/core/utils.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(const MyApp());
 
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Background mesaj handler'ını tanıt
+  try {
+    await Firebase.initializeApp();
+  } catch (e) {
+    // Hata ayıklama için konsola yazdır
+    print('Firebase initialize error: $e');
+  }
+  runApp(const MyApp());
+}
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

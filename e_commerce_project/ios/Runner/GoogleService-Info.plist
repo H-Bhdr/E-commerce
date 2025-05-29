@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-<!-- Bu dosya hassas bilgiler içerdiğinden .gitignore'a eklenmelidir. -->
-<!-- API anahtarlarını koddan kaldırmak mümkün değildir, çünkü Firebase native SDK'lar bu dosyayı doğrudan okur. -->
 <dict>
+	<key>CLIENT_ID</key>
+	<string>801042934937-17o658fa6vrui3n2htvqui4fldm7b9cm.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.801042934937-17o658fa6vrui3n2htvqui4fldm7b9cm</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>801042934937-njllk5iisk5h5hnu98gh4h9laj9dtlsn.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
 	<string>AIzaSyB5SjVHBt16BeR9Q4fN4aXFSnFUtCESdy4</string>
 	<key>GCM_SENDER_ID</key>
