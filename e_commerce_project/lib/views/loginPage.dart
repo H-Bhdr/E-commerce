@@ -5,7 +5,7 @@ import 'package:e_commerce_project/core/utils.dart';
 import 'package:e_commerce_project/services/auth_service.dart'; // eklendi
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
