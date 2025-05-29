@@ -3,6 +3,8 @@ import '../components/app_bar.dart';
 import '../components/nav_bar.dart';
 
 class FavoritesView extends StatelessWidget {
+  const FavoritesView({super.key});
+
   
 
   @override

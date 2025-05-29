@@ -3,6 +3,8 @@ import 'package:e_commerce_project/models/porductModel.dart';
 import 'package:e_commerce_project/services/productServices.dart';
 
 class AddProductPage extends StatefulWidget {
+  const AddProductPage({super.key});
+
   @override
   State<AddProductPage> createState() => _AddProductPageState();
 }
@@ -202,21 +204,21 @@ class _AddProductPageState extends State<AddProductPage> {
                 SizedBox(height: 24.0),
                 _loading
                     ? Center(child: CircularProgressIndicator())
-                    : Container(
+                    : SizedBox(
                         height: 50.0,
                         child: ElevatedButton(
                           onPressed: _submit,
+                          style: ElevatedButton.styleFrom(
+                            elevation: 4.0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                          ),
                           child: Text(
                             'ÜRÜN EKLE',
                             style: TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            elevation: 4.0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
                             ),
                           ),
                         ),
