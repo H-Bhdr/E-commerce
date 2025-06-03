@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:e_commerce_project/views/add_product.dart';
 import 'package:e_commerce_project/views/favorites_view.dart';
 import 'package:e_commerce_project/views/home.dart';
@@ -7,20 +10,20 @@ import 'package:e_commerce_project/views/loginPage.dart';
 import 'package:e_commerce_project/core/utils.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Background mesaj handler'ını tanıt
+  await dotenv.load();
   try {
     await Firebase.initializeApp();
+    
   } catch (e) {
-    // Hata ayıklama için konsola yazdır
     print('Firebase initialize error: $e');
   }
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -40,21 +43,19 @@ class MyApp extends StatelessWidget {
           surface: AppColors.surfaceColor,
           onSurface: AppColors.textColor,
         ),
-        
+
         // Basic theme settings
         fontFamily: 'Poppins',
         scaffoldBackgroundColor: AppColors.backgroundColor,
-        
+
         // Component themes
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.primaryColor,
           foregroundColor: Colors.white,
           elevation: 0,
         ),
-      
-        iconTheme: const IconThemeData(
-          color: AppColors.primaryColor,
-        ),
+
+        iconTheme: const IconThemeData(color: AppColors.primaryColor),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.all(AppColors.buttonColor),
@@ -62,7 +63,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      
+
       title: 'Material App',
       home: LoginPage(),
     );
@@ -85,11 +86,7 @@ class _MainNavigationState extends State<MainNavigation> {
     AddProductPage(), // Ekle
   ];
 
-  static const List<String> _titles = [
-    'Ana Sayfa',
-    'Favoriler',
-    'Ekle',
-  ];
+  static const List<String> _titles = ['Ana Sayfa', 'Favoriler', 'Ekle'];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -100,18 +97,15 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor, // Use the defined background color
-      appBar: MyAppBar(
-        title: Text(_titles[_selectedIndex]),
-      ),
+      backgroundColor:
+          AppColors.backgroundColor, // Use the defined background color
+      appBar: MyAppBar(title: Text(_titles[_selectedIndex])),
       drawer: MyDrawer(),
       body: _pages[_selectedIndex],
       bottomNavigationBar: MyNavBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-
       ),
     );
-    
   }
 }

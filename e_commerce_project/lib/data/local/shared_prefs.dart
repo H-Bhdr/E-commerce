@@ -11,6 +11,12 @@ class SharedPrefs {
   static const String _keyToken = 'token';
   static const String _keyRole = 'role';
 
+
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore için
+import 'package:shared_preferences/shared_preferences.dart';
+
+// SharedPrefs helper class
+class SharedPrefs {
   static Future<void> saveUser({
     required String uid,
     required String email,
@@ -20,7 +26,7 @@ class SharedPrefs {
     required String role,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    
+     
     await Future.wait([
       prefs.setString(_keyUid, uid),
       prefs.setString(_keyEmail, email),
@@ -65,6 +71,7 @@ class SharedPrefs {
       prefs.remove(_keyToken),
       prefs.remove(_keyRole),
     ]);
+ 
   }
 }
 

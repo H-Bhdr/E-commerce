@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:e_commerce_project/services/productServices.dart';
 import 'package:e_commerce_project/models/porductModel.dart';
 import 'package:e_commerce_project/views/add_product.dart';
+
 import 'package:e_commerce_project/Sensor/sensor.dart';
 import 'package:e_commerce_project/data/local/local_db.dart';
+import 'package:e_commerce_project/services/cloud_service.dart';
+import 'dart:math';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -44,10 +45,125 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  @override
-  void dispose() {
-    _shakeRecommender?.stopListening();
-    super.dispose();
+  final TextEditingController _keywordController = TextEditingController();
+
+  void _showAIRecommendation(BuildContext context) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Center(child: CircularProgressIndicator()),
+    );
+
+    final products = await fetchProducts();
+
+    if (products.isEmpty) {
+      Navigator.of(context).pop();
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: Text('AI Ürün Önerisi'),
+              content: Text('Ürün bulunamadı.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text('Kapat'),
+                ),
+              ],
+            ),
+      );
+      return;
+    }
+
+    final keyword = _keywordController.text.trim().toLowerCase();
+
+  
+    List<Product> filteredProducts = [];
+    if (keyword.isNotEmpty) {
+      filteredProducts = products.where((p) =>
+        (p.title.toLowerCase().contains(keyword)) ||
+        (p.description?.toLowerCase().contains(keyword) ?? false)
+      ).toList();
+    }
+
+  
+    final random = Random();
+    List<Product> limitedProducts;
+    if (filteredProducts.isNotEmpty) {
+      filteredProducts.shuffle(random);
+      limitedProducts = filteredProducts.take(5).toList();
+    } else {
+      final shuffledProducts = List<Product>.from(products)..shuffle(random);
+      limitedProducts = shuffledProducts.take(5).toList();
+    }
+
+    
+    final productListText = limitedProducts
+        .map(
+          (p) =>
+              "${p.title} - ${(p.description?.isNotEmpty == true ? p.description : 'Açıklama yok')}\nGörsel: ${p.image}",
+        )
+        .join("\n");
+
+    
+    final question = '''
+Aşağıdaki ürünler arasından bir e-ticaret müşterisine "${_keywordController.text}" ile ilgili en dikkat çekici ürünü seç.
+Sadece ürün adı, kısa açıklama ve görsel URL'sini döndür. Format:
+Ad: ...
+Açıklama: ...
+Görsel: ...
+
+Ürünler:
+$productListText
+''';
+
+    final result = await GeminiService.askQuestion(question);
+    Navigator.of(context).pop();
+
+    // Yanıtı ayrıştır
+    String? name, desc, imageUrl;
+    if (result != null) {
+      final nameMatch = RegExp(r'Ad:\s*(.*)').firstMatch(result);
+      final descMatch = RegExp(r'Açıklama:\s*(.*)').firstMatch(result);
+      final imageMatch = RegExp(r'Görsel:\s*(.*)').firstMatch(result);
+      name = nameMatch?.group(1);
+      desc = descMatch?.group(1);
+      imageUrl = imageMatch?.group(1);
+    }
+
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: Text('AI Ürün Önerisi'),
+            content:
+                result == null
+                    ? Text('Öneri alınamadı.')
+                    : Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (imageUrl != null && imageUrl.isNotEmpty)
+                          Image.network(
+                            imageUrl,
+                            height: 120,
+                            errorBuilder: (_, __, ___) => Icon(Icons.image),
+                          ),
+                        if (name != null)
+                          Text(
+                            name,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        if (desc != null) Text(desc),
+                      ],
+                    ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text('Kapat'),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
@@ -108,53 +224,133 @@ class _HomePageState extends State<HomePage> {
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 24.0,
+              left: 16,
+              right: 16,
+              bottom: 8,
+            ),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _keywordController,
+                  decoration: InputDecoration(
+                    labelText: 'Anahtar kelime ile öneri al (örn: yüzük, tişört, ekran...)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: Icon(Icons.auto_awesome),
+                    label: Text('AI ile Ürün Önerisi Al'),
+                    onPressed: () => _showAIRecommendation(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: FutureBuilder<List<Product>>(
+              future: fetchProducts(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Hata: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(child: Text('Ürün bulunamadı.'));
+                } else {
+                  final products = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final product = products[index];
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () {
+                          
+                        },
+                        child: Stack(
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(12),
+                            Container(
+                              margin: EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
                               ),
-                              child: Image.network(
-                                (product.image.startsWith('http://') ||
-                                        product.image.startsWith('https://'))
-                                    ? product.image
-                                    : 'https://via.placeholder.com/300x300?text=No+Image',
-                                height: 300,
-                                fit: BoxFit.contain,
-                                errorBuilder:
-                                    (context, error, stackTrace) => Container(
-                                      height: 300,
-                                      color: Colors.grey[200],
-                                      child: Icon(
-                                        Icons.image_not_supported,
-                                        size: 48,
-                                      ),
-                                    ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: Colors.grey.shade200,
+                                  width: 1,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.06),
+                                    blurRadius: 6,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
                               ),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  Text(
-                                    product.title,
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16,
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(12),
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                    child: Image.network(
+                                      product.image,
+                                      height: 300, 
+                                      fit:
+                                          BoxFit
+                                              .contain, 
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                height:
+                                                    300, 
+                                                color: Colors.grey[200],
+                                                child: Icon(
+                                                  Icons.image_not_supported,
+                                                  size: 48,
+                                                ),
+                                              ),
+                                    ),
                                   ),
-                                  SizedBox(height: 6),
-                                  Text(
-                                    '${product.price.toStringAsFixed(2)} ₺',
-                                    style: TextStyle(
-                                      color: Colors.green[700],
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 18,
+                                      vertical: 20,
+                                    ), 
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          product.title,
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 16,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 6),
+                                        Text(
+                                          '${product.price.toStringAsFixed(2)} ₺',
+                                          style: TextStyle(
+                                            color: Colors.green[700],
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
@@ -179,19 +375,44 @@ class _HomePageState extends State<HomePage> {
                                     : Icons.favorite_border,
                                 color: Colors.redAccent,
                                 size: 28,
+                            Positioned(
+                              right: 26,
+                              bottom: 18,
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(24),
+                                  onTap: () {
+                                 
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(6.0),
+                                    child: Icon(
+                                      Icons.favorite_border,
+                                      color: Colors.redAccent,
+                                      size: 28,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                );
+                      );
+                    },
+                  );
+                }
               },
-            );
-          }
-        },
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _keywordController.dispose();
+    super.dispose();
   }
 }
