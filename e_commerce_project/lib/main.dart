@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ui';
-
 import 'package:e_commerce_project/views/add_product.dart';
 import 'package:e_commerce_project/views/favorites_view.dart';
 import 'package:e_commerce_project/views/home.dart';

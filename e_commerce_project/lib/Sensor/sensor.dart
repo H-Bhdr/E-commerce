@@ -17,7 +17,7 @@ class ShakeProductRecommender {
   ShakeProductRecommender({
     required this.products,
     required this.context,
-    this.shakeThreshold = 30.0, 
+    this.shakeThreshold = 18.0, 
     this.minShakeDelayMs = 1200,
   });
 

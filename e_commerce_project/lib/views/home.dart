@@ -169,61 +169,6 @@ $productListText
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder<List<Product>>(
-        future: fetchProducts(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Hata: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Ürün bulunamadı.'));
-          } else {
-            final products = snapshot.data!;
-            // Sensör dinleyicisini sadece bir kez başlat
-            if (!_productsLoaded) {
-              _products = products;
-              _shakeRecommender = ShakeProductRecommender(
-                products: _products,
-                context: context,
-              );
-              _shakeRecommender!.startListening();
-              _productsLoaded = true;
-              _loadFavoriteStatus();
-            }
-            return ListView.builder(
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                final product = products[index];
-                return InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    // Ürün detayına yönlendirme eklenebilir
-                  },
-                  child: Stack(
-                    children: [
-                      Container(
-                        margin: EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.grey.shade200,
-                            width: 1,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.06),
-                              blurRadius: 6,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
       body: Column(
         children: [
           Padding(
@@ -266,18 +211,29 @@ $productListText
                   return Center(child: Text('Ürün bulunamadı.'));
                 } else {
                   final products = snapshot.data!;
+                  // Sensör dinleyicisini sadece bir kez başlat
+                  if (!_productsLoaded) {
+                    _products = products;
+                    _shakeRecommender = ShakeProductRecommender(
+                      products: _products,
+                      context: context,
+                    );
+                    _shakeRecommender!.startListening();
+                    _productsLoaded = true;
+                    _loadFavoriteStatus();
+                  }
                   return ListView.builder(
                     itemCount: products.length,
                     itemBuilder: (context, index) {
                       final product = products[index];
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () {
-                          
-                        },
-                        child: Stack(
-                          children: [
-                            Container(
+                      return Stack(
+                        children: [
+                          InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              // Ürün detayına yönlendirme eklenebilir
+                            },
+                            child: Container(
                               margin: EdgeInsets.symmetric(
                                 horizontal: 16,
                                 vertical: 8,
@@ -306,31 +262,26 @@ $productListText
                                     ),
                                     child: Image.network(
                                       product.image,
-                                      height: 300, 
-                                      fit:
-                                          BoxFit
-                                              .contain, 
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              Container(
-                                                height:
-                                                    300, 
-                                                color: Colors.grey[200],
-                                                child: Icon(
-                                                  Icons.image_not_supported,
-                                                  size: 48,
-                                                ),
-                                              ),
+                                      height: 300,
+                                      fit: BoxFit.contain,
+                                      errorBuilder: (context, error, stackTrace) =>
+                                          Container(
+                                            height: 300,
+                                            color: Colors.grey[200],
+                                            child: Icon(
+                                              Icons.image_not_supported,
+                                              size: 48,
+                                            ),
+                                          ),
                                     ),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 18,
                                       vertical: 20,
-                                    ), 
+                                    ),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           product.title,
@@ -356,48 +307,29 @@ $productListText
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        right: 26,
-                        bottom: 18,
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(24),
-                            onTap: () => _toggleFavorite(product.id),
-                            child: Padding(
-                              padding: const EdgeInsets.all(6.0),
-                              child: Icon(
-                                _favoriteStatus[product.id] == true
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: Colors.redAccent,
-                                size: 28,
-                            Positioned(
-                              right: 26,
-                              bottom: 18,
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(24),
-                                  onTap: () {
-                                 
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(6.0),
-                                    child: Icon(
-                                      Icons.favorite_border,
-                                      color: Colors.redAccent,
-                                      size: 28,
-                                    ),
+                          ),
+                          Positioned(
+                            right: 26,
+                            bottom: 18,
+                            child: Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(24),
+                                onTap: () => _toggleFavorite(product.id),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6.0),
+                                  child: Icon(
+                                    _favoriteStatus[product.id] == true
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color: Colors.redAccent,
+                                    size: 28,
                                   ),
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       );
                     },
                   );
