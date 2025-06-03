@@ -3,6 +3,8 @@ import 'package:e_commerce_project/models/porductModel.dart';
 import 'package:e_commerce_project/services/productServices.dart';
 
 class AddProductPage extends StatefulWidget {
+  const AddProductPage({super.key});
+
   @override
   State<AddProductPage> createState() => _AddProductPageState();
 }

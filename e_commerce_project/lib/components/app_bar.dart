@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget title;
 
-  const MyAppBar({Key? key, required this.title}) : super(key: key);
+  const MyAppBar({super.key, required this.title});
 
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
@@ -23,6 +23,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
 }
 
 class MyDrawer extends StatelessWidget {
+  const MyDrawer({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Drawer(

@@ -1,9 +1,11 @@
 import 'package:e_commerce_project/main.dart';
+import 'package:e_commerce_project/views/splashScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:e_commerce_project/core/utils.dart';
+import 'package:e_commerce_project/services/auth_service.dart'; // eklendi
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -45,14 +47,11 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 40),
                   // Logo
                   Center(
-                    child: Image.asset(
-                      'assets/logo.png',
-                      height: 120,
-                      errorBuilder: (context, error, stackTrace) => Icon(
+                    child: Icon(
                         Icons.shopping_bag,
                         size: 100,
                         color: AppColors.primaryColor, // Changed from deepPurple to primaryColor
-                      ),
+                      
                     ),
                   ),
                   const SizedBox(height: 30),
@@ -172,14 +171,21 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 20),
                   // Google sign in button
                   OutlinedButton.icon(
-                    onPressed: () {
-                      _navigateToHome();
+                    onPressed: () async {
+                      // SplashScreen'e yönlendir ve sonucu bekle
+                      final result = await Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const SplashScreen(redirectAfterGoogleSignIn: true),
+                        ),
+                      );
+                      // Eğer SplashScreen'den başarılı dönüş olursa ana sayfaya yönlendir
+                      if (result == true) {
+                        _navigateToHome();
+                      }
                     },
-                    icon: Image.network(
-                      'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
-                      height: 24,
-                      width: 24,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata),
+                   icon:  Icon(
+                      Icons.g_mobiledata,
+                      color: const Color.fromARGB(255, 0, 0, 0),
                     ),
                     label: const Text(
                       'Continue with Google',

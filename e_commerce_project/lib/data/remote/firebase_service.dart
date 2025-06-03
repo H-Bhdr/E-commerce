@@ -36,7 +36,7 @@ class FirebaseService {
         if (res.statusCode == 200) {
           print('Ürün eklendi: ${product["title"]}');
         } else {
-          print('Hata oluştu: ${res.body}');
+          print('Hata oluşmuştur: ${res.body}');
         }
       }
     } else {
