@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:e_commerce_project/services/productServices.dart';
 import 'package:e_commerce_project/models/porductModel.dart';
 import 'package:e_commerce_project/views/add_product.dart';
+
+import 'package:e_commerce_project/Sensor/sensor.dart';
+import 'package:e_commerce_project/data/local/local_db.dart';
 import 'package:e_commerce_project/services/cloud_service.dart';
 import 'dart:math';
 
@@ -11,6 +14,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<Product> _products = [];
+  bool _productsLoaded = false;
+  ShakeProductRecommender? _shakeRecommender;
+  final LocalDatabase _localDb = LocalDatabase();
+  Map<int, bool> _favoriteStatus = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavoriteStatus();
+  }
+
+  Future<void> _loadFavoriteStatus() async {
+    for (var product in _products) {
+      _favoriteStatus[product.id] = await _localDb.isFavorite(product.id);
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _toggleFavorite(int productId) async {
+    final isFavorite = await _localDb.isFavorite(productId);
+    if (isFavorite) {
+      await _localDb.removeFromFavorites(productId);
+    } else {
+      await _localDb.addToFavorites(productId);
+    }
+    setState(() {
+      _favoriteStatus[productId] = !isFavorite;
+    });
+  }
+
   final TextEditingController _keywordController = TextEditingController();
 
   void _showAIRecommendation(BuildContext context) async {
@@ -135,6 +169,61 @@ $productListText
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: FutureBuilder<List<Product>>(
+        future: fetchProducts(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Hata: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('Ürün bulunamadı.'));
+          } else {
+            final products = snapshot.data!;
+            // Sensör dinleyicisini sadece bir kez başlat
+            if (!_productsLoaded) {
+              _products = products;
+              _shakeRecommender = ShakeProductRecommender(
+                products: _products,
+                context: context,
+              );
+              _shakeRecommender!.startListening();
+              _productsLoaded = true;
+              _loadFavoriteStatus();
+            }
+            return ListView.builder(
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                final product = products[index];
+                return InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    // Ürün detayına yönlendirme eklenebilir
+                  },
+                  child: Stack(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: Colors.grey.shade200,
+                            width: 1,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.06),
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
       body: Column(
         children: [
           Padding(
@@ -267,6 +356,25 @@ $productListText
                                 ],
                               ),
                             ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        right: 26,
+                        bottom: 18,
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(24),
+                            onTap: () => _toggleFavorite(product.id),
+                            child: Padding(
+                              padding: const EdgeInsets.all(6.0),
+                              child: Icon(
+                                _favoriteStatus[product.id] == true
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: Colors.redAccent,
+                                size: 28,
                             Positioned(
                               right: 26,
                               bottom: 18,
