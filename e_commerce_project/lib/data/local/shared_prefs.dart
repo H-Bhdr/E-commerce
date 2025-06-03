@@ -1,8 +1,27 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore için
-import '../data/local/shared_prefs.dart'; // SharedPrefs importu eklendi
+import 'package:shared_preferences/shared_preferences.dart';
+
+// SharedPrefs helper class
+class SharedPrefs {
+  static Future<void> saveUser({
+    required String uid,
+    required String email,
+    required String name,
+    required String photoUrl,
+    required String token,
+    required String role,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('uid', uid);
+    await prefs.setString('email', email);
+    await prefs.setString('name', name);
+    await prefs.setString('photoUrl', photoUrl);
+    await prefs.setString('token', token);
+    await prefs.setString('role', role);
+  }
+}
 
 Future<UserCredential?> signInWithGoogle() async {
   try {

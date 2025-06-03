@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ui';
+
 import 'package:e_commerce_project/views/add_product.dart';
 import 'package:e_commerce_project/views/favorites_view.dart';
 import 'package:e_commerce_project/views/home.dart';
@@ -9,20 +12,18 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-   await dotenv.load();
-  // Background mesaj handler'ını tanıt
+  await dotenv.load();
   try {
     await Firebase.initializeApp();
+    
   } catch (e) {
-    // Hata ayıklama için konsola yazdır
     print('Firebase initialize error: $e');
   }
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
