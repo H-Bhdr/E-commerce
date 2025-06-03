@@ -14,6 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscureText = true;
+  bool _rememberMe = false;
 
   @override
   void dispose() {
@@ -48,30 +49,27 @@ class _LoginPageState extends State<LoginPage> {
                     child: Image.asset(
                       'assets/logo.png',
                       height: 120,
-                      errorBuilder: (context, error, stackTrace) => Icon(
-                        Icons.shopping_bag,
-                        size: 100,
-                        color: AppColors.primaryColor, // Changed from deepPurple to primaryColor
-                      ),
+                      errorBuilder:
+                          (context, error, stackTrace) => Icon(
+                            Icons.shopping_bag,
+                            size: 100,
+                            color:
+                                AppColors
+                                    .primaryColor, // Changed from deepPurple to primaryColor
+                          ),
                     ),
                   ),
                   const SizedBox(height: 30),
                   // Welcome text
                   const Text(
                     'Welcome Back',
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 10),
                   const Text(
                     'Sign in to continue shopping',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                    ),
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 40),
@@ -105,7 +103,9 @@ class _LoginPageState extends State<LoginPage> {
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscureText ? Icons.visibility_off : Icons.visibility,
+                          _obscureText
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                         ),
                         onPressed: () {
                           setState(() {
@@ -125,6 +125,19 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   ),
                   const SizedBox(height: 10),
+
+                  //remember me
+                  CheckboxListTile(
+                    title: const Text("Beni Hatırla"),
+                    value: _rememberMe,
+                    onChanged: (newValue) {
+                      setState(() {
+                        _rememberMe = newValue ?? false;
+                      });
+                    },
+                    controlAffinity: ListTileControlAffinity.leading,
+                    contentPadding: EdgeInsets.zero,
+                  ),
                   // Forgot password
                   Align(
                     alignment: Alignment.centerRight,
@@ -136,13 +149,16 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 20),
                   // Login button
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        _navigateToHome();
+                        await SharedPrefs.setRememberMe(_rememberMe);
+                        _navigateToHome(); // ya da signInWithGoogle(rememberMe: _rememberMe);
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor, // Changed from deepPurple to primaryColor
+                      backgroundColor:
+                          AppColors
+                              .primaryColor, // Changed from deepPurple to primaryColor
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -179,7 +195,9 @@ class _LoginPageState extends State<LoginPage> {
                       'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg',
                       height: 24,
                       width: 24,
-                      errorBuilder: (context, error, stackTrace) => const Icon(Icons.g_mobiledata),
+                      errorBuilder:
+                          (context, error, stackTrace) =>
+                              const Icon(Icons.g_mobiledata),
                     ),
                     label: const Text(
                       'Continue with Google',
