@@ -3,6 +3,7 @@ import 'package:e_commerce_project/services/productServices.dart';
 import 'package:e_commerce_project/models/porductModel.dart';
 import 'package:e_commerce_project/views/add_product.dart';
 import 'package:e_commerce_project/Sensor/sensor.dart';
+import 'package:e_commerce_project/data/local/local_db.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,6 +16,33 @@ class _HomePageState extends State<HomePage> {
   List<Product> _products = [];
   bool _productsLoaded = false;
   ShakeProductRecommender? _shakeRecommender;
+  final LocalDatabase _localDb = LocalDatabase();
+  Map<int, bool> _favoriteStatus = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavoriteStatus();
+  }
+
+  Future<void> _loadFavoriteStatus() async {
+    for (var product in _products) {
+      _favoriteStatus[product.id] = await _localDb.isFavorite(product.id);
+    }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _toggleFavorite(int productId) async {
+    final isFavorite = await _localDb.isFavorite(productId);
+    if (isFavorite) {
+      await _localDb.removeFromFavorites(productId);
+    } else {
+      await _localDb.addToFavorites(productId);
+    }
+    setState(() {
+      _favoriteStatus[productId] = !isFavorite;
+    });
+  }
 
   @override
   void dispose() {
@@ -45,6 +73,7 @@ class _HomePageState extends State<HomePage> {
               );
               _shakeRecommender!.startListening();
               _productsLoaded = true;
+              _loadFavoriteStatus();
             }
             return ListView.builder(
               itemCount: products.length,
@@ -141,13 +170,13 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(24),
-                            onTap: () {
-                              // Favori butonu aksiyonu
-                            },
+                            onTap: () => _toggleFavorite(product.id),
                             child: Padding(
                               padding: const EdgeInsets.all(6.0),
                               child: Icon(
-                                Icons.favorite_border,
+                                _favoriteStatus[product.id] == true
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
                                 color: Colors.redAccent,
                                 size: 28,
                               ),
