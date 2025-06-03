@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore için
@@ -11,7 +10,8 @@ Future<UserCredential?> signInWithGoogle() async {
     if (googleUser == null) return null; // kullanıcı iptal etti
 
     // Tokenları al
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
 
     // Firebase credential oluştur
     final credential = GoogleAuthProvider.credential(
@@ -20,7 +20,9 @@ Future<UserCredential?> signInWithGoogle() async {
     );
 
     // Firebase ile giriş yap
-    final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+    final userCredential = await FirebaseAuth.instance.signInWithCredential(
+      credential,
+    );
     final user = userCredential.user;
 
     // JWT Token işlemleri
@@ -47,6 +49,18 @@ Future<UserCredential?> signInWithGoogle() async {
         token: idToken ?? '',
         role: 'Seller', // Varsayılan rol
       );
+
+      // beni hatırla kısmı
+
+      Future<void> setRememberMe(bool value) async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('remember_me', value);
+      }
+
+      Future<bool> getRememberMe() async {
+        final prefs = await SharedPreferences.getInstance();
+        return prefs.getBool('remember_me') ?? false;
+      }
     }
 
     return userCredential;
