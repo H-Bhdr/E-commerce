@@ -136,4 +136,5 @@ Future<bool> deleteProduct(String documentId) async {
     }
   }
   return true; // Return true if deleted from local database
-}
+ }
+ 
