@@ -22,23 +22,36 @@ Future<List<Product>> fetchProducts() async {
 
       final jsonData = json.decode(response.body);
       final List<Product> products = [];
+      final Set<String> seenKeys = {}; // id+title ile tekrarları engelle
 
       for (var doc in jsonData['documents']) {
         final data = doc['fields'];
-        final product = Product.fromFirestore(data);
-        products.add(product);
-        // Save to local database
-        await _localDb.insertProduct(product);
+        final firestoreId = doc['name']?.split('/')?.last;
+        final product = Product.fromFirestore(data, firestoreId: firestoreId);
+        final uniqueKey = '${product.id}_${product.title}';
+        if (!seenKeys.contains(uniqueKey)) {
+          products.add(product);
+          seenKeys.add(uniqueKey);
+          // Save to local database
+          await _localDb.insertProduct(product);
+        }
       }
 
       return products;
     } catch (e) {
-      // If online fetch fails, try to get from local database
+      // Eğer online fetch başarısız olursa, localden çek
       return await _localDb.getAllProducts();
     }
   } else {
-    // If offline, get from local database
-    return await _localDb.getAllProducts();
+    // Eğer offline, localden çek
+    final allProducts = await _localDb.getAllProducts();
+    // Tekrar eden ürünleri id+title ile sil
+    final Map<String, Product> uniqueProducts = {};
+    for (final product in allProducts) {
+      final uniqueKey = '${product.id}_${product.title}';
+      uniqueProducts[uniqueKey] = product;
+    }
+    return uniqueProducts.values.toList();
   }
 }
 
@@ -53,7 +66,8 @@ Future<Product?> fetchProduct(String documentId) async {
       if (response.statusCode == 200) {
         final doc = json.decode(response.body);
         final data = doc['fields'];
-        final product = Product.fromFirestore(data);
+        final firestoreId = doc['name']?.split('/')?.last;
+        final product = Product.fromFirestore(data, firestoreId: firestoreId);
         // Save to local database
         await _localDb.insertProduct(product);
         return product;
@@ -75,7 +89,7 @@ Future<bool> addProduct(Product product) async {
   final isConnected = await _connectivityService.isConnected();
   
   // Always save to local database first
-  await _localDb.insertProduct(product);
+  await _localDb.insertProduct(product); // <-- BURADA KAYIT YAPILIYOR
   
   if (isConnected) {
     try {
@@ -99,7 +113,7 @@ Future<bool> updateProduct(String documentId, Product product) async {
   final isConnected = await _connectivityService.isConnected();
   
   // Always update local database first
-  await _localDb.insertProduct(product);
+  await _localDb.insertProduct(product); // <-- BURADA KAYIT YAPILIYOR
   
   if (isConnected) {
     try {
@@ -137,4 +151,3 @@ Future<bool> deleteProduct(String documentId) async {
   }
   return true; // Return true if deleted from local database
  }
- 

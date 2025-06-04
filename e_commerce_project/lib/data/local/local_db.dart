@@ -22,7 +22,7 @@ class LocalDatabase {
     String path = join(await getDatabasesPath(), 'products.db');
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
@@ -33,7 +33,8 @@ class LocalDatabase {
       CREATE TABLE products(
         id INTEGER PRIMARY KEY,
         title TEXT,
-        price REAL
+        price REAL,
+        firestore_id TEXT
       )
     ''');
 
@@ -56,48 +57,8 @@ class LocalDatabase {
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
-      await db.execute('''
-        CREATE TABLE favorites(
-          product_id INTEGER PRIMARY KEY,
-          FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE CASCADE
-        )
-      ''');
-    }
-    if (oldVersion < 3) {
-      // Create new tables
-      await db.execute('''
-        CREATE TABLE products_new(
-          id INTEGER PRIMARY KEY,
-          title TEXT,
-          price REAL
-        )
-      ''');
-
-      await db.execute('''
-        CREATE TABLE product_details(
-          product_id INTEGER PRIMARY KEY,
-          description TEXT,
-          image TEXT,
-          category TEXT,
-          FOREIGN KEY (product_id) REFERENCES products_new (id) ON DELETE CASCADE
-        )
-      ''');
-
-      // Copy data from old table to new tables
-      await db.execute('''
-        INSERT INTO products_new (id, title, price)
-        SELECT id, title, price FROM products
-      ''');
-
-      await db.execute('''
-        INSERT INTO product_details (product_id, description, image, category)
-        SELECT id, description, image, category FROM products
-      ''');
-
-      // Drop old table and rename new one
-      await db.execute('DROP TABLE products');
-      await db.execute('ALTER TABLE products_new RENAME TO products');
+    if (oldVersion < 4) {
+      await db.execute('ALTER TABLE products ADD COLUMN firestore_id TEXT');
     }
   }
 
@@ -110,6 +71,7 @@ class LocalDatabase {
           'id': product.id,
           'title': product.title,
           'price': product.price,
+          'firestore_id': product.firestoreId,
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -143,6 +105,7 @@ class LocalDatabase {
         description: maps[i]['description'],
         image: maps[i]['image'],
         category: maps[i]['category'],
+        firestoreId: maps[i]['firestore_id'],
       );
     });
   }
@@ -164,6 +127,7 @@ class LocalDatabase {
         description: maps[0]['description'],
         image: maps[0]['image'],
         category: maps[0]['category'],
+        firestoreId: maps[0]['firestore_id'],
       );
     }
     return null;
@@ -177,6 +141,7 @@ class LocalDatabase {
         {
           'title': product.title,
           'price': product.price,
+          'firestore_id': product.firestoreId,
         },
         where: 'id = ?',
         whereArgs: [product.id],
@@ -255,6 +220,7 @@ class LocalDatabase {
         description: maps[i]['description'],
         image: maps[i]['image'],
         category: maps[i]['category'],
+        firestoreId: maps[i]['firestore_id'],
       );
     });
   }

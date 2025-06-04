@@ -26,15 +26,22 @@ Future<UserCredential?> signInWithGoogle() async {
     final idToken = await user?.getIdToken();
     print("JWT Token: $idToken");
 
-    // Kullanıcı bilgilerini Firestore'a kaydet/güncelle
+    // Kullanıcı bilgilerini Firestore'dan oku
+    String role = 'Seller';
     if (user != null) {
+      final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      if (userDoc.exists && userDoc.data()?['role'] != null && (userDoc.data()?['role'] as String).isNotEmpty) {
+        role = userDoc.data()?['role'];
+      }
+
+      // Kullanıcı bilgilerini Firestore'a kaydet/güncelle
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
         'uid': user.uid,
         'email': user.email,
         'name': user.displayName,
         'photoUrl': user.photoURL,
         'createdAt': FieldValue.serverTimestamp(),
-        'role': 'Seller', // Varsayılan rol
+        'role': role,
       }, SetOptions(merge: true));
 
       // Kullanıcı verilerini SharedPrefs ile kaydet
@@ -44,7 +51,7 @@ Future<UserCredential?> signInWithGoogle() async {
         name: user.displayName ?? '',
         photoUrl: user.photoURL ?? '',
         token: idToken ?? '',
-        role: 'Seller', // Varsayılan rol
+        role: role,
       );
     }
 
