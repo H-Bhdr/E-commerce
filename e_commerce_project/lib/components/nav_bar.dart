@@ -16,7 +16,7 @@ class MyNavBar extends StatelessWidget {
       selectedItemColor: AppColors.primaryColor, // Use blue for selected items
       unselectedItemColor: Colors.grey, // Grey for unselected items
       type: BottomNavigationBarType.fixed, // Prevents shifting behavior
-      items: const [
+      items: const [ 
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Ana Sayfa',
@@ -28,6 +28,10 @@ class MyNavBar extends StatelessWidget {
         BottomNavigationBarItem(
           icon: Icon(Icons.add_box),
           label: 'Ekle',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.person),
+          label: 'Profil',
         ),
       ],
     );

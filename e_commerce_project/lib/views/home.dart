@@ -6,6 +6,7 @@ import 'package:e_commerce_project/views/add_product.dart';
 import 'package:e_commerce_project/Sensor/sensor.dart';
 import 'package:e_commerce_project/data/local/local_db.dart';
 import 'package:e_commerce_project/services/cloud_service.dart';
+import 'package:e_commerce_project/services/background_service.dart';
 import 'dart:math';
 
 class HomePage extends StatefulWidget {
@@ -19,11 +20,25 @@ class _HomePageState extends State<HomePage> {
   ShakeProductRecommender? _shakeRecommender;
   final LocalDatabase _localDb = LocalDatabase();
   Map<int, bool> _favoriteStatus = {};
+  double? _testRate;
 
   @override
   void initState() {
     super.initState();
     _loadFavoriteStatus();
+    // Fiyatlar güncellenince Home'un state'ini tamamen yenile
+    CurrencyBackgroundService().onPriceUpdate = (rate, time) {
+      if (mounted) {
+        // Tüm state'i sıfırla ve yeniden yükle
+        setState(() {
+          _productsLoaded = false;
+          _products = [];
+          _favoriteStatus.clear();
+        });
+        // Favori durumlarını da tekrar yükle
+        _loadFavoriteStatus();
+      }
+    };
   }
 
   Future<void> _loadFavoriteStatus() async {
@@ -194,6 +209,43 @@ $productListText
                     icon: Icon(Icons.auto_awesome),
                     label: Text('AI ile Ürün Önerisi Al'),
                     onPressed: () => _showAIRecommendation(context),
+                  ),
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: Icon(Icons.trending_up),
+                    label: Text('Kuru Test İçin Artır'),
+                    onPressed: () async {
+                      final service = CurrencyBackgroundService();
+                      if (service.lastUsdTryRate == null) {
+                        await service.fetchAndUpdate();
+                      }
+                      service.lastUsdTryRate = (service.lastUsdTryRate ?? 30.0) - 5.0;
+                      await service.fetchAndUpdate();
+                      // --- Uniq ürünler bırak, tekrar edenleri sil ---
+                      final allProducts = await _localDb.getAllProducts();
+                      final Set<String> seen = {};
+                      for (final product in allProducts) {
+                        final key = '${product.id}_${product.title}';
+                        if (seen.contains(key)) {
+                          await _localDb.deleteProduct(product.id);
+                        } else {
+                          seen.add(key);
+                        }
+                      }
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Kur test için artırıldı ve tekrar eden ürünler silindi!')),
+                        );
+                        setState(() {
+                          _productsLoaded = false;
+                          _products = [];
+                          _favoriteStatus.clear();
+                        });
+                        await _loadFavoriteStatus();
+                      }
+                    },
                   ),
                 ),
               ],
